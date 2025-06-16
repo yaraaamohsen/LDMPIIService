@@ -2,53 +2,27 @@
 using LDMPII_Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NT.Integration.SharedKernel.OracleManagedHelper;
 using Oracle.ManagedDataAccess.Client;
-using Oracle.ManagedDataAccess.Types;
 
 namespace LDMPII_DAL
 {
-    public class GhAttachmentDAL(IConfiguration configuration, ILogger<GhAttachmentDAL> logger) : IGhAttachmentDAL
+    public class GhAttachmentDAL(IConfiguration _configuration, ILogger<GhAttachmentDAL> logger) : IGhAttachmentDAL
     {
-        public async Task<GhAttachmentDto> GetGhAttachmentAsync()
+        public async Task GetGhAttachmentAsync(OracleManager oracleManager, GhAttachmentDto ghAttachmentDto)
         {
-            using var connection = new OracleConnection(configuration.GetSection("ConnectionString").Value);
-            await connection.OpenAsync();
+            oracleManager.CommandParameters.Add("P_JSON", OracleDbType.Clob, null, ParameterDirection.Output);
+            oracleManager.CommandParameters.Add("P_Seq_num", OracleDbType.Int32, null, ParameterDirection.Output);
 
-            using var cmd = new OracleCommand("G42_LDM.get_GH_ATTACHMENT_API", connection)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
+            await oracleManager.ExcuteNonQueryAsync($"{_configuration.GetSection("StoredProcedures:GetAttachmentApi").Value}", CommandType.StoredProcedure);
 
-            OracleParameter jsonParam = new OracleParameter("P_JSON", OracleDbType.Clob, ParameterDirection.Output);
-
-            OracleParameter seqNumParam = new OracleParameter("P_Seq_num", OracleDbType.Int64, ParameterDirection.Output);
-
-            cmd.Parameters.AddRange(new[] { jsonParam, seqNumParam });
-
-            try
-            {
-                await cmd.ExecuteNonQueryAsync();
-                logger.LogInformation("Query Excuted");
-                var jsonOutput = ((OracleClob)jsonParam.Value).Value.ToString(); // HERE: We Declared That jsonParam Is Clob, It Be Clob After Excuting, And We Move Line By Line, So When It Arrived Here Its Already Clob?
-
-                int seqNum = seqNumParam.Value != DBNull.Value ? Convert.ToInt32(seqNumParam.Value) : 0;
-
-                return new GhAttachmentDto
-                {
-                    JsonOutput = jsonOutput,
-                    SeqNum = seqNum
-                };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error executing stored procedure");
-                throw;
-            }
+            ghAttachmentDto.JsonOutput = oracleManager.CommandParameters["P_JSON"].Value.ToString(); // Here Need To Edit
+            ghAttachmentDto.SeqNum = (Int32)oracleManager.CommandParameters["P_JSON"].Value;
         }
 
         public async Task SetAttachmentAsync(byte[] file, int seqNum, int status)
         {
-            using var connection = new OracleConnection(configuration.GetSection("ConnectionString").Value);
+            using var connection = new OracleConnection(_configuration.GetSection("ConnectionString").Value);
             await connection.OpenAsync();
 
             using var cmd = new OracleCommand("G42_LDM.set_GH_ATTACHMENT_API", connection)
