@@ -12,7 +12,7 @@ namespace LDMPII_DSL.Services
         {
             try
             {
-                using (var oracleManager = new OracleManager(_configuration.GetSection("StoredProcedures:GetAttachmentApi").Value))
+                using (var oracleManager = new OracleManager(_configuration.GetConnectionString("ConnectionString")))
                 {
                     await oracleManager.OpenConnectionAsync();
                     _logger.LogInformation("Connection Opened");
