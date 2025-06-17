@@ -1,13 +1,16 @@
 ﻿using LDMPII_DAL;
 using LDMPII_DSL.ServicesInterfaces;
-using LDMPII_Entities;
+using LDMPII_Entities.AttachmentDtos;
+using LDMPII_Helper.CustomExceptions.DatabaseExceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NT.Integration.SharedKernel.OracleManagedHelper;
 
 namespace LDMPII_DSL.Services
 {
-    public class GhAttachmentService(IGhAttachmentDAL _ghAttachmentDAL, IConfiguration _configuration, ILogger<GhAttachmentService> _logger) : IGhAttachmentService
+    public class GhAttachmentService(IGhAttachmentDAL _ghAttachmentDAL,
+        IConfiguration _configuration,
+        ILogger<GhAttachmentService> _logger) : IGhAttachmentService
     {
         public async Task GetGhAttachmentAsync(GetAttachmentDto GetAttachmentDto)
         {
@@ -22,12 +25,13 @@ namespace LDMPII_DSL.Services
             }
             catch (OracleCustomException ex)
             {
-                _logger.LogError(ex, "Database Error Occurred While Getting Attachment");
+                _logger.LogError(ex, "Database Error While Getting Attachment");
+                throw new DatabaseOperationException("Database Operation Failed", ex);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected Error Getting Attachment");
-                throw;
+                throw new DatabaseOperationException("Unexpected Attachment Error", ex);
             }
         }
 
@@ -42,10 +46,15 @@ namespace LDMPII_DSL.Services
                     await _ghAttachmentDAL.SetGhAttachmentAsync(oracleManager, setAttachmentDto);
                 }
             }
-            catch
+            catch (OracleCustomException ex)
             {
-                _logger.LogError("Error executing is Set Attachment");
-
+                _logger.LogError(ex, "Database Error While Getting Attachment");
+                throw new DatabaseOperationException("Database Operation Failed", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected Error Getting Attachment");
+                throw new DatabaseOperationException("Unexpected Error", ex);
             }
         }
     }

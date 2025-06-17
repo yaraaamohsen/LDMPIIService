@@ -1,5 +1,5 @@
 using LDMPII_DSL.ServicesInterfaces;
-using LDMPII_Entities;
+using LDMPII_Entities.AttachmentDtos;
 
 
 namespace LDMPIIWorker
@@ -92,7 +92,7 @@ namespace LDMPIIWorker
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process attachment");
+                _logger.LogError(ex, "Failed To Process Attachment");
                 throw;
             }
         }
@@ -102,8 +102,7 @@ namespace LDMPIIWorker
             var value = config.GetValue<int?>(configPath);
             if (value is null or <= 0)
             {
-                throw new ArgumentException(
-                    $"Invalid interval value for {configPath}. Must be a positive integer.");
+                throw new ArgumentException($"Invalid interval value for {configPath}. Must be a positive integer.");
             }
             return value.Value;
         }

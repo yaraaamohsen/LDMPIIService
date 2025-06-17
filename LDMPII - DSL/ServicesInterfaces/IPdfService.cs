@@ -1,4 +1,4 @@
-﻿using LDMPII_Entities;
+﻿using LDMPII_Entities.AttachmentDtos;
 
 namespace LDMPII_DSL.ServicesInterfaces
 {

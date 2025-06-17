@@ -1,4 +1,4 @@
-﻿using LDMPII_Entities;
+﻿using LDMPII_Entities.AttachmentDtos;
 using NT.Integration.SharedKernel.OracleManagedHelper;
 
 namespace LDMPII_DAL

@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using LDMPII_DSL.ServicesInterfaces;
 using LDMPII_Entities.Authentication;
+using LDMPII_Helper.CustomExceptions;
+using LDMPII_Helper.CustomExceptions.DatabaseExceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -44,19 +46,24 @@ namespace LDMPII_DSL.Services
 
                 var responseText = await response.Content.ReadAsStringAsync();
 
-                var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
+                var tokenResponse = await HttpResponseHandler.HandleResponseAsync<TokenResponse>(response, _logger);
 
-                return tokenResponse.AccessToken ?? throw new Exception("Invalid token response");
+                return tokenResponse.AccessToken ?? throw new AuthException("Invalid token response");
             }
-            catch (HttpRequestException ex)
+            catch (AuthException ex)
             {
-                _logger.LogError(ex, "HTTP error during token request");
-                throw;
+                _logger.LogError(ex, "Authentication Failed");
+                throw new AuthException("Authentication Unavailable", ex);
+            }
+            catch (Exception ex) when (ex is not AuthException)
+            {
+                _logger.LogError(ex, "Unexpected error during authentication");
+                throw new AuthException("Authentication service unavailable", ex);
             }
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "JSON parsing error");
-                throw;
+                throw new AuthException("Failed While Parsing JSON", ex);
             }
         }
     }

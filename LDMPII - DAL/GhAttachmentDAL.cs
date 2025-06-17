@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using LDMPII_Entities;
+using LDMPII_Entities.AttachmentDtos;
 using Microsoft.Extensions.Configuration;
 using NT.Integration.SharedKernel.OracleManagedHelper;
 using Oracle.ManagedDataAccess.Client;

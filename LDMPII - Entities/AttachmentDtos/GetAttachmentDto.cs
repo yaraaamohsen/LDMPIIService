@@ -1,4 +1,4 @@
-﻿namespace LDMPII_Entities
+﻿namespace LDMPII_Entities.AttachmentDtos
 {
     public class GetAttachmentDto
     {
