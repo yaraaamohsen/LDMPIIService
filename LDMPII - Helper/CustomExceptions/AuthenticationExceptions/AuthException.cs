@@ -1,4 +1,4 @@
-﻿namespace LDMPII_Helper.CustomExceptions.DatabaseExceptions
+﻿namespace LDMPII_Helper.CustomExceptions.AuthenticationExceptions
 {
     public class AuthException : Exception
     {

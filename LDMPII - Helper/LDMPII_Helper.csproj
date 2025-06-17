@@ -15,8 +15,4 @@
     <ProjectReference Include="..\LDMPII - Entities\LDMPII_Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CustomExceptions\AuthenticationExceptions\" />
-  </ItemGroup>
-
 </Project>

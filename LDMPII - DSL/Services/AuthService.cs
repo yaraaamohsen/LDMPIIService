@@ -2,7 +2,7 @@
 using LDMPII_DSL.ServicesInterfaces;
 using LDMPII_Entities.Authentication;
 using LDMPII_Helper.CustomExceptions;
-using LDMPII_Helper.CustomExceptions.DatabaseExceptions;
+using LDMPII_Helper.CustomExceptions.AuthenticationExceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
