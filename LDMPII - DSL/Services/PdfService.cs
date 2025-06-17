@@ -4,30 +4,62 @@ using System.Text.Json;
 using LDMPII_DSL.ServicesInterfaces;
 using LDMPII_Entities;
 using LDMPII_Entities.PdfGeneration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace LDMPII_DSL.Services
 {
-    public class PdfService(ILogger<PdfService> _logger, IHttpClientFactory _httpClientFactory) : IPdfService
+    public class PdfService : IPdfService
     {
-        public async Task<byte[]> GeneratePdfAsync(string token, GhAttachmentDto attachmentData)
+        private readonly ILogger<PdfService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _config;
+        private readonly string _pdfUrl;
+
+
+        public PdfService(ILogger<PdfService> logger, IHttpClientFactory httpClientFactory, IConfiguration config)
         {
-            var http = _httpClientFactory.CreateClient();
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _pdfUrl = _config.GetSection("PdfSetting:PdfUrl").Value
+            ?? throw new ArgumentNullException("PdfSetting:PdfUrl Configuration Is Missing");
+        }
+        public async Task<byte[]> GeneratePdfAsync(string token, GetAttachmentDto attachmentData)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentException("Token cannot be empty", nameof(token));
 
-            var request = new PdfRequest
+            if (attachmentData == null)
+                throw new ArgumentNullException(nameof(attachmentData));
+            try
             {
-                Pdf = "base64-encoded PDF string",
-                Data = JsonSerializer.Deserialize<PatientData>(attachmentData.JsonOutput),
-                TemplateId = "olorectal-liquid"
-            };
+                var http = _httpClientFactory.CreateClient();
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await http.PostAsJsonAsync("https://dev-pdf-generator.g4?healthcare.ai/api/pdf/update", request);
+                var request = new PdfRequest
+                {
+                    Pdf = "base64-encoded PDF string",
+                    Data = JsonSerializer.Deserialize<PatientData>(attachmentData.JsonOutput),
+                    TemplateId = "colorectal-liquid"
+                };
 
-            response.EnsureSuccessStatusCode();
+                var response = await http.PostAsJsonAsync(_pdfUrl, request);
 
-            var result = await response.Content.ReadFromJsonAsync<PdfResponse>();
-            return Convert.FromBase64String(result.ModifiedPdf);
+                response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadFromJsonAsync<PdfResponse>();
+                return Convert.FromBase64String(result.ModifiedPdf);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP error while generating PDF");
+                throw;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "JSON parsing error");
+                throw;
+            }
         }
     }
 }

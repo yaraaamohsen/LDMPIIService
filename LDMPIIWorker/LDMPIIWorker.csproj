@@ -15,4 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\LDMPII - DSL\LDMPII_DSL.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NT.Integration.SharedKernel.OracleManagedHelper">
+      <HintPath>..\..\IntegrationLibraries\NT.Integration.SharedKernel.OracleManagedHelper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

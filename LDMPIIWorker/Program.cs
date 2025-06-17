@@ -12,14 +12,16 @@ namespace LDMPIIWorker
             IHost host = Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(config =>
                 {
-                    config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<TokenCredentials>(context.Configuration.GetSection("TokenCredentials"));
                     services.AddHttpClient();
+                    services.Configure<TokenCredentials>(context.Configuration.GetSection("TokenCredentials"));
+
                     services.AddSingleton<IAuthService, AuthService>();
                     services.AddScoped<IPdfService, PdfService>();
+                    services.AddScoped<IGhAttachmentService, GhAttachmentService>();
                     services.AddScoped<IGhAttachmentDAL, GhAttachmentDAL>();
 
                     services.AddHostedService<Worker>();

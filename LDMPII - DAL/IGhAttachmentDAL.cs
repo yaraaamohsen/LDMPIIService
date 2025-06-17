@@ -5,7 +5,7 @@ namespace LDMPII_DAL
 {
     public interface IGhAttachmentDAL
     {
-        Task GetGhAttachmentAsync(OracleManager oracleManager, GhAttachmentDto ghAttachmentDto);
-        Task SetAttachmentAsync(byte[] fileContent, int seqNum, int status);
+        Task GetGhAttachmentAsync(OracleManager oracleManager, GetAttachmentDto ghAttachmentDto);
+        Task SetGhAttachmentAsync(OracleManager oracleManager, SetAttachmentDto setAttachmentDto);
     }
 }
