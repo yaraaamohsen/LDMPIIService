@@ -24,8 +24,6 @@ namespace LDMPII_DSL.Services
             _httpClient.BaseAddress = new Uri(authRequest.Value.TokenUrl);
         }
 
-        //public string GetTokenUrl() => _authRequest.TokenUrl;
-
         public async Task<string?> GetTokenAsync()
         {
             var body = new Dictionary<string, string>
@@ -49,12 +47,6 @@ namespace LDMPII_DSL.Services
                 var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseText);
 
                 return tokenResponse.AccessToken ?? throw new Exception("Invalid token response");
-                //if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
-                //{
-                //    throw new Exception("Invalid token response");
-                //}
-                //var tokenResponse = response.Content.ReadFromJsonAsync<TokenResponse>();
-                //return tokenResponse.acces;
             }
             catch (HttpRequestException ex)
             {

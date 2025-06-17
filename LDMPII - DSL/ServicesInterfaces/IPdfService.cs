@@ -4,6 +4,6 @@ namespace LDMPII_DSL.ServicesInterfaces
 {
     public interface IPdfService
     {
-        Task<byte[]> GeneratePdfAsync(string token, GhAttachmentDto attachmentData);
+        Task<byte[]> GeneratePdfAsync(string token, GetAttachmentDto attachmentData);
     }
 }
